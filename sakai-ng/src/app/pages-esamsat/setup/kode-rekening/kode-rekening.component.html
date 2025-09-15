@@ -1,0 +1,479 @@
+<div class="md:w-3/4 mx-auto">
+    <div class="card">
+        <!-- ✅ Ganti p-tabs -> p-tabView -->
+        <p-tabView
+            [(activeIndex)]="activeTab"
+            (onChange)="onTabChange($event.index)"
+        >
+            <!-- TAB 1: Pendapatan -->
+            <p-tabPanel header="Pendapatan">
+                <p-toolbar styleClass="mb-4">
+                    <ng-template pTemplate="left">
+                        <button
+                            pButton
+                            label="Tambah Data"
+                            icon="pi pi-plus"
+                            class="mr-2"
+                            (click)="openNewPendapatan()"
+                        ></button>
+                        <button
+                            pButton
+                            label="Delete"
+                            icon="pi pi-trash"
+                            class="p-button-danger"
+                            outlined
+                            (click)="deleteSelectedPendapatan()"
+                            [disabled]="
+                                !selectedMasterrekds ||
+                                selectedMasterrekds.length === 0
+                            "
+                        ></button>
+                    </ng-template>
+
+                    <ng-template pTemplate="right">
+                        <p-dropdown
+                            [options]="jnspajakOptions"
+                            optionLabel="label"
+                            optionValue="value"
+                            placeholder="Filter Jenis Pajak"
+                            (onChange)="filterByJenisPajak($event.value)"
+                            class="mr-2"
+                        >
+                        </p-dropdown>
+                        <button
+                            pButton
+                            label="Export Excel"
+                            icon="pi pi-file-excel"
+                            class="p-button-secondary"
+                            (click)="exportExcelPendapatan()"
+                        ></button>
+                    </ng-template>
+                </p-toolbar>
+
+                <p-table
+                    #dt
+                    [value]="masterrekdList"
+                    [(selection)]="selectedMasterrekds"
+                    [loading]="loadingPendapatan"
+                    [paginator]="true"
+                    [rows]="10"
+                    [rowsPerPageOptions]="[5, 10, 20]"
+                    [globalFilterFields]="[
+                        'kdrek',
+                        'nmrek',
+                        'kdjnspjk',
+                        'status'
+                    ]"
+                    [sortField]="'nmrek'"
+                    [sortOrder]="1"
+                    selectionMode="multiple"
+                    responsiveLayout="scroll"
+                    class="p-datatable-gridlines p-datatable-sm"
+                >
+                    <!-- Search -->
+                    <ng-template pTemplate="caption">
+                        <div
+                            class="flex flex-column md:flex-row md:justify-content-between md:align-items-center"
+                        >
+                            <h5 class="m-0">Kode Rekening</h5>
+                            <span class="block mt-2 md:mt-0 p-input-icon-left">
+                                <i class="pi pi-search"></i>
+
+                                <input
+                                    #searchBox
+                                    pInputText
+                                    type="text"
+                                    placeholder="Search..."
+                                    (input)="onGlobalFilter(dt, $event)"
+                                    class="w-full sm:w-auto"
+                                />
+                            </span>
+                        </div>
+                    </ng-template>
+
+                    <ng-template pTemplate="header">
+                        <tr>
+                            <th style="width: 3rem">
+                                <p-tableHeaderCheckbox></p-tableHeaderCheckbox>
+                            </th>
+                            <th pSortableColumn="kdrek">
+                                Kode Rek <p-sortIcon field="kdrek"></p-sortIcon>
+                            </th>
+                            <th pSortableColumn="nmrek">
+                                Uraian <p-sortIcon field="nmrek"></p-sortIcon>
+                            </th>
+                            <th pSortableColumn="kdjnspjk">
+                                Jenis Pajak
+                                <p-sortIcon field="kdjnspjk"></p-sortIcon>
+                            </th>
+                            <th pSortableColumn="type">
+                                Type <p-sortIcon field="type"></p-sortIcon>
+                            </th>
+                            <th pSortableColumn="status">
+                                Status <p-sortIcon field="status"></p-sortIcon>
+                            </th>
+                            <th>Aksi</th>
+                        </tr>
+                    </ng-template>
+
+                    <ng-template pTemplate="body" let-item>
+                        <tr>
+                            <td style="width: 3rem">
+                                <p-tableCheckbox
+                                    [value]="item"
+                                ></p-tableCheckbox>
+                            </td>
+                            <td>{{ item.kdrek }}</td>
+                            <td>{{ item.nmrek }}</td>
+                            <td>{{ getJenisPajakLabel(item.kdjnspjk) }}</td>
+                            <td>{{ item.type }}</td>
+                            <td>{{ getStatusLabel(item.status) }}</td>
+                            <td>
+                                <button
+                                    pButton
+                                    icon="pi pi-pencil"
+                                    class="p-button-text p-button-sm mr-2"
+                                    (click)="editPendapatan(item)"
+                                ></button>
+                                <button
+                                    pButton
+                                    icon="pi pi-trash"
+                                    class="p-button-text p-button-sm p-button-danger"
+                                    (click)="confirmDeletePendapatan(item)"
+                                ></button>
+                            </td>
+                        </tr>
+                    </ng-template>
+                </p-table>
+            </p-tabPanel>
+
+            <!-- TAB 2: Neraca -->
+            <p-tabPanel header="Neraca">
+                <p-toolbar styleClass="mb-4">
+                    <ng-template pTemplate="left">
+                        <button
+                            pButton
+                            label="Tambah Data"
+                            icon="pi pi-plus"
+                            class="mr-2"
+                            (click)="openNewNeraca()"
+                        ></button>
+                        <button
+                            pButton
+                            label="Delete"
+                            icon="pi pi-trash"
+                            class="p-button-danger"
+                            outlined
+                            (click)="deleteSelectedNeraca()"
+                            [disabled]="
+                                !selectedMasterreknrcs ||
+                                selectedMasterreknrcs.length === 0
+                            "
+                        ></button>
+                    </ng-template>
+
+                    <ng-template pTemplate="right">
+                        <button
+                            pButton
+                            label="Export Excel"
+                            icon="pi pi-file-excel"
+                            class="p-button-secondary"
+                            (click)="exportExcelNeraca()"
+                        ></button>
+                    </ng-template>
+                </p-toolbar>
+
+                <p-table
+                    #neracadt
+                    [value]="masterreknrcList"
+                    [(selection)]="selectedMasterreknrcs"
+                    [loading]="loadingNeraca"
+                    [paginator]="true"
+                    [rows]="10"
+                    [rowsPerPageOptions]="[5, 10, 20]"
+                    [globalFilterFields]="['kdrek', 'nmrek', 'type']"
+                    [sortField]="'nmrek'"
+                    [sortOrder]="1"
+                    selectionMode="multiple"
+                    responsiveLayout="scroll"
+                    class="p-datatable-gridlines p-datatable-sm"
+                >
+                    <!-- Search -->
+                    <ng-template pTemplate="caption">
+                        <div
+                            class="flex flex-column md:flex-row md:justify-content-between md:align-items-center"
+                        >
+                            <h5 class="m-0">Neraca</h5>
+                            <span class="block mt-2 md:mt-0 p-input-icon-left">
+                                <i class="pi pi-search"></i>
+
+                                <input
+                                    #searchBox
+                                    pInputText
+                                    type="text"
+                                    placeholder="Search..."
+                                    (input)="onGlobalFilter(neracadt, $event)"
+                                    class="w-full sm:w-auto"
+                                />
+                            </span>
+                        </div>
+                    </ng-template>
+
+                    <ng-template pTemplate="header">
+                        <tr>
+                            <th style="width: 3rem">
+                                <p-tableHeaderCheckbox></p-tableHeaderCheckbox>
+                            </th>
+                            <th pSortableColumn="kdrek">
+                                Kode Rek <p-sortIcon field="kdrek"></p-sortIcon>
+                            </th>
+                            <th pSortableColumn="nmrek">
+                                Uraian <p-sortIcon field="nmrek"></p-sortIcon>
+                            </th>
+                            <th pSortableColumn="type">
+                                Type <p-sortIcon field="type"></p-sortIcon>
+                            </th>
+                            <th>Aksi</th>
+                        </tr>
+                    </ng-template>
+
+                    <ng-template pTemplate="body" let-item>
+                        <tr>
+                            <td style="width: 3rem">
+                                <p-tableCheckbox
+                                    [value]="item"
+                                ></p-tableCheckbox>
+                            </td>
+                            <td>{{ item.kdrek }}</td>
+                            <td>{{ item.nmrek }}</td>
+                            <td>{{ item.type }}</td>
+                            <td>
+                                <button
+                                    pButton
+                                    icon="pi pi-pencil"
+                                    class="p-button-text p-button-sm mr-2"
+                                    (click)="editNeraca(item)"
+                                ></button>
+                                <button
+                                    pButton
+                                    icon="pi pi-trash"
+                                    class="p-button-text p-button-sm p-button-danger"
+                                    (click)="confirmDeleteNeraca(item)"
+                                ></button>
+                            </td>
+                        </tr>
+                    </ng-template>
+                </p-table>
+            </p-tabPanel>
+        </p-tabView>
+    </div>
+</div>
+
+<!-- Dialog Pendapatan -->
+<p-dialog
+    [(visible)]="masterrekdDialog"
+    [modal]="true"
+    [style]="{ width: '800px' }"
+    [header]="masterrekdEdit ? 'Edit Pendapatan' : 'Tambah Pendapatan'"
+>
+    <div class="card p-fluid">
+        <div class="field" *ngIf="masterrekdEdit">
+            <label for="idrekd">ID Rekening</label>
+            <input
+                id="idrekd"
+                pInputText
+                [(ngModel)]="selectedMasterrekd.idrekd"
+                readonly
+            />
+        </div>
+
+        <div class="field">
+            <label for="mtglevel">Level</label>
+            <p-dropdown
+                [(ngModel)]="selectedMasterrekd.mtglevel"
+                [options]="masterjnsstrurekOptions"
+                optionLabel="label"
+                optionValue="value"
+                placeholder="Pilih Kode level"
+            >
+            </p-dropdown>
+        </div>
+
+        <div class="field">
+            <label for="kdrek">Kode Rekening</label>
+            <input
+                id="kdrek"
+                pInputText
+                [(ngModel)]="selectedMasterrekd.kdrek"
+                required
+            />
+        </div>
+
+        <div class="field">
+            <label for="nmrek">Nama Rekening</label>
+            <input
+                id="nmrek"
+                pInputText
+                [(ngModel)]="selectedMasterrekd.nmrek"
+                required
+            />
+        </div>
+
+        <div class="field">
+            <label for="kdjnspjk">Jenis Pajak</label>
+            <p-dropdown
+                [(ngModel)]="selectedMasterrekd.kdjnspjk"
+                [options]="jnspajakOptions"
+                optionLabel="label"
+                optionValue="value"
+                placeholder="Pilih jenis pajak"
+            >
+            </p-dropdown>
+        </div>
+
+        <div class="field">
+            <label>Tipe Rekening</label>
+            <div class="flex gap-4">
+                <div class="flex items-center">
+                    <p-radioButton
+                        name="type"
+                        value="H"
+                        [(ngModel)]="selectedMasterrekd.type"
+                        inputId="typeH"
+                    ></p-radioButton>
+                    <label class="leading-none ml-2" for="typeH">Header</label>
+                </div>
+                <div class="flex items-center">
+                    <p-radioButton
+                        name="type"
+                        value="D"
+                        [(ngModel)]="selectedMasterrekd.type"
+                        inputId="typeD"
+                    ></p-radioButton>
+                    <label class="leading-none ml-2" for="typeD">Detail</label>
+                </div>
+            </div>
+        </div>
+
+        <div class="field">
+            <label>Status</label>
+            <div class="flex gap-4">
+                <div class="flex items-center">
+                    <p-radioButton
+                        name="status"
+                        value="1"
+                        [(ngModel)]="selectedMasterrekd.status"
+                        inputId="statusAktif"
+                    ></p-radioButton>
+                    <label class="leading-none ml-2" for="statusAktif">Aktif</label>
+                </div>
+                <div class="flex items-center">
+                    <p-radioButton
+                        name="status"
+                        value="0"
+                        [(ngModel)]="selectedMasterrekd.status"
+                        inputId="statusNonAktif"
+                    ></p-radioButton>
+                    <label class="leading-none ml-2" for="statusNonAktif">Tidak Aktif</label>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <p-footer>
+        <button
+            pButton
+            label="Batal"
+            icon="pi pi-times"
+            class="p-button-text"
+            (click)="masterrekdDialog = false"
+        ></button>
+        <button
+            pButton
+            label="Simpan"
+            icon="pi pi-check"
+            (click)="savePendapatan()"
+        ></button>
+    </p-footer>
+</p-dialog>
+
+<!-- Dialog Neraca -->
+<p-dialog
+    [(visible)]="masterreknrcDialog"
+    [modal]="true"
+    [style]="{ width: '400px' }"
+    [header]="masterreknrcEdit ? 'Edit Neraca' : 'Tambah Neraca'"
+>
+    <div class="card p-fluid">
+        <div class="field">
+            <label for="mtglevel">Level</label>
+            <p-dropdown
+                [(ngModel)]="selectedMasterrekd.mtglevel"
+                [options]="masterjnsstrurekOptions"
+                optionLabel="label"
+                optionValue="value"
+                placeholder="Pilih Kode level"
+            >
+            </p-dropdown>
+        </div>
+        <div class="field">
+            <label for="kdrek">Kode Rekening</label>
+            <input
+                id="kdrek"
+                pInputText
+                [(ngModel)]="selectedMasterreknrc.kdrek"
+                required
+            />
+        </div>
+        <div class="field">
+            <label for="nmrek">Nama Rekening</label>
+            <input
+                id="nmrek"
+                pInputText
+                [(ngModel)]="selectedMasterreknrc.nmrek"
+            />
+        </div>
+        <div class="field">
+            <label>Tipe Rekening</label>
+            <div class="flex gap-4">
+                <div class="flex items-center">
+                    <p-radioButton
+                        name="type"
+                        value="H"
+                        [(ngModel)]="selectedMasterreknrc.type"
+                        inputId="typeH2"
+                    ></p-radioButton>
+                    <label class="leading-none ml-2" for="typeH2">Header</label>
+                </div>
+                <div class="flex items-center">
+                    <p-radioButton
+                        name="type"
+                        value="D"
+                        [(ngModel)]="selectedMasterreknrc.type"
+                        inputId="typeD2"
+                    ></p-radioButton>
+                    <label class="leading-none ml-2" for="typeD2">Detail</label>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <p-footer>
+        <button
+            pButton
+            label="Batal"
+            icon="pi pi-times"
+            class="p-button-text"
+            (click)="masterreknrcDialog = false"
+        ></button>
+        <button
+            pButton
+            label="Simpan"
+            icon="pi pi-check"
+            (click)="saveNeraca()"
+        ></button>
+    </p-footer>
+</p-dialog>
+
+<p-confirmDialog></p-confirmDialog>
+<p-toast></p-toast>
