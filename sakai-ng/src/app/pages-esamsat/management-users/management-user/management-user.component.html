@@ -94,8 +94,8 @@
     [modal]="true"
     [style]="{ width: '400px' }"
 >
-    <div class="p-fluid flex flex-col gap-4">
-        <div class="flex flex-col gap-2">
+    <div class="card p-fluid">
+        <div class="field">
             <label for="nama">Nama</label>
             <input
                 id="nama"
@@ -104,7 +104,7 @@
                 [(ngModel)]="selectedUser.nama"
             />
         </div>
-        <div class="flex flex-col gap-2">
+        <div class="field">
             <label for="email">Email</label>
             <input
                 id="email"
@@ -113,7 +113,7 @@
                 [(ngModel)]="selectedUser.email"
             />
         </div>
-        <div class="flex flex-col gap-2">
+        <div class="field">
             <label for="kdgroup">Group</label>
             <p-dropdown
                 id="kdgroup"
@@ -125,7 +125,7 @@
                 class="w-full"
             ></p-dropdown>
         </div>
-        <div class="flex flex-col gap-2">
+        <div class="field">
             <label for="password">Password</label>
             <input
                 id="password"
@@ -134,7 +134,7 @@
                 [(ngModel)]="selectedUser.password"
             />
         </div>
-        <div class="flex justify-content-end mt-3">
+        <div class="field">
             <p-button
                 label="Simpan"
                 icon="pi pi-check"
