@@ -33,7 +33,11 @@ export class AppMenuComponent implements OnInit {
                     { label: 'Kode Rekening', icon: 'pi pi-fw pi-book', routerLink: ['/setup/kode-rekening'] },
                     { label: 'Daftar Entitas', icon: 'pi pi-fw pi-building', routerLink: ['/setup/daftar-entitas'] },
                     { label: 'Daftar Pengawai', icon: 'pi pi-fw pi-users', routerLink: ['/setup/daftar-pegawai'] },
-                    { label: 'Daftar Bendahara', icon: 'pi pi-fw pi-wallet', routerLink: ['/setup/daftar-bendahara'] }
+                    { label: 'Daftar Bendahara', icon: 'pi pi-fw pi-wallet', routerLink: ['/setup/daftar-bendahara'] },
+                    { label: 'Daftar Hari Libur', icon: 'pi pi-fw pi-calendar', routerLink: ['/setup/daftar-hari-libur'] },
+                    { label: 'Daftar Penandatanganan Dokumen', icon: 'pi pi-fw pi-file', routerLink: ['/setup/daftar-penandatangan-dokumen'] },
+                    { label: 'Program Keringanan (Denda)', icon: 'pi pi-fw pi-percentage', routerLink: ['/setup/program-keringanan-denda'] },
+                    { label: 'Batas Tanggal Layanan', icon: 'pi pi-fw pi-calendar-times', routerLink: ['/setup/batas-tanggal-layanan'] }
                 ]
             },
             {

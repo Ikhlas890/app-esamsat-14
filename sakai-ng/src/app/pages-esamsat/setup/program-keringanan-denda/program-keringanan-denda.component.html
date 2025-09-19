@@ -1,0 +1,265 @@
+<p-toolbar styleClass="mb-4">
+    <ng-template pTemplate="left">
+        <p-button
+            label="Tambah Data"
+            icon="pi pi-plus"
+            styleClass="p-button-sm mr-2"
+            (onClick)="openNewDaftar()"
+        ></p-button>
+        <p-button
+            label="Delete"
+            icon="pi pi-trash"
+            styleClass="p-button-sm mr-2 p-button-danger"
+            outlined
+            (onClick)="deleteSelectedDaftar()"
+            [disabled]="
+                !selectedMasterhapusdendas ||
+                selectedMasterhapusdendas.length === 0
+            "
+        ></p-button>
+    </ng-template>
+
+    <ng-template pTemplate="right">
+        <p-button
+            label="Export Excel"
+            icon="pi pi-file-excel"
+            styleClass="p-button-sm mr-2"
+            (onClick)="exportExcel()"
+        ></p-button>
+    </ng-template>
+</p-toolbar>
+
+<p-table
+    #dt
+    [value]="masterhapusdendaList"
+    [(selection)]="selectedMasterhapusdendas"
+    [loading]="loadingDaftar"
+    [paginator]="true"
+    [rows]="10"
+    [rowsPerPageOptions]="[5, 10, 20]"
+    [globalFilterFields]="['uraian']"
+    [sortField]="'uraian'"
+    [sortOrder]="1"
+    selectionMode="multiple"
+    responsiveLayout="scroll"
+    class="p-datatable-gridlines p-datatable-sm"
+>
+    <!-- Search -->
+    <ng-template pTemplate="caption">
+        <div
+            class="flex flex-column md:flex-row md:justify-content-between md:align-items-center"
+        >
+            <h5 class="m-0">Program Keringanan (Denda)</h5>
+            <span class="block mt-2 md:mt-0 p-input-icon-left">
+                <i class="pi pi-search"></i>
+
+                <input
+                    #searchBox
+                    pInputText
+                    type="text"
+                    placeholder="Search..."
+                    (input)="onGlobalFilter(dt, $event)"
+                    class="w-full sm:w-auto"
+                />
+            </span>
+        </div>
+    </ng-template>
+    <!-- End Search -->
+
+    <ng-template pTemplate="header">
+        <tr>
+            <th style="width: 3rem">
+                <p-tableHeaderCheckbox></p-tableHeaderCheckbox>
+            </th>
+            <th pSortableColumn="uraian">
+                Nama Program<p-sortIcon field="uraian"></p-sortIcon>
+            </th>
+            <th pSortableColumn="awal">
+                Periode <p-sortIcon field="awal"></p-sortIcon>
+            </th>
+            <th pSortableColumn="nilai">
+                Nilai<p-sortIcon field="nilai"></p-sortIcon>
+            </th>
+            <th pSortableColumn="status">
+                Status <p-sortIcon field="status"></p-sortIcon>
+            </th>
+            <th>Aksi</th>
+        </tr>
+    </ng-template>
+    <ng-template pTemplate="body" let-item>
+        <tr>
+            <td style="width: 3rem">
+                <p-tableCheckbox [value]="item"></p-tableCheckbox>
+            </td>
+            <td>{{ item.uraian }}</td>
+            <td>{{ item.awal | date}} - {{ item.akhir | date}}</td>
+            <td>{{ item.nilai }} {{ item.satuan }}</td>
+            <td>{{ getStatusLabel(item.status) }}</td>
+            <td>
+                <p-button
+                    icon="pi pi-pencil"
+                    styleClass="p-button-text p-button-sm mr-2"
+                    (click)="editDaftar(item)"
+                ></p-button>
+                <p-button
+                    icon="pi pi-trash"
+                    styleClass="p-button-text p-button-sm p-button-danger"
+                    (click)="confirmDeleteDaftar(item)"
+                >
+                </p-button>
+            </td>
+        </tr>
+    </ng-template>
+</p-table>
+
+<!-- Dialog Pendapatan -->
+<p-dialog
+    [(visible)]="masterhapusdendaDialog"
+    [modal]="true"
+    [style]="{ width: '900px' }"
+    header="{{ masterhapusdendaEdit ? 'Edit' : 'Tambah' }} Daftar"
+>
+    <div class="card p-fluid">
+        <!-- ID HAPUS BENDAHARA (Readonly saat edit) -->
+        <div class="field" *ngIf="masterhapusdendaEdit">
+            <label for="idhapusdenda">ID Hapus Denda</label>
+            <input
+                id="idhapusdenda"
+                type="text"
+                pInputText
+                [(ngModel)]="selectedMasterhapusdenda.idhapusdenda"
+                readonly
+            />
+        </div>
+
+        <!-- Jenis -->
+        <div class="field">
+            <label for="jenis">Jenis</label>
+            <p-dropdown
+                [options]="jenisOptions"
+                [(ngModel)]="selectedMasterhapusdenda.jenis"
+                placeholder="Pilih Jenis"
+                optionLabel="label"
+                optionValue="value"
+            >
+            </p-dropdown>
+        </div>
+
+        <!-- NIP -->
+        <div class="field">
+            <label for="uraian">Nama Program</label>
+            <input
+                id="uraian"
+                type="text"
+                pInputText
+                [(ngModel)]="selectedMasterhapusdenda.uraian"
+                required
+            />
+        </div>
+
+        <!-- Tanggal Awal -->
+        <div class="field">
+            <label for="calendar">Awal</label>
+            <p-calendar
+                inputId="calendar"
+                [(ngModel)]="selectedMasterhapusdenda.awal"
+                class="ng-invalid ng-dirty"
+                dateFormat="yy-mm-dd"
+            ></p-calendar>
+        </div>
+
+        <!-- Tanggal Akhir -->
+        <div class="field">
+            <label for="calendar">Akhir</label>
+            <p-calendar
+                inputId="calendar"
+                [(ngModel)]="selectedMasterhapusdenda.akhir"
+                class="ng-invalid ng-dirty"
+                dateFormat="yy-mm-dd"
+            ></p-calendar>
+        </div>
+
+        <div class="p-formgrid grid">
+            <!-- Nilai -->
+            <div class="field col">
+                <label for="nilai">Nilai</label>
+                <input
+                    id="nama"
+                    type="number"
+                    pInputText
+                    [(ngModel)]="selectedMasterhapusdenda.nilai"
+                    required
+                />
+            </div>
+            <!-- Satuan -->
+            <div class="field col">
+                <label for="satuan">Satuan</label>
+                <p-dropdown
+                    [options]="satuanOptions"
+                    [(ngModel)]="selectedMasterhapusdenda.satuan"
+                    placeholder="Pilih Satuan"
+                    optionLabel="label"
+                    optionValue="value"
+                >
+                </p-dropdown>
+            </div>
+        </div>
+
+        <!-- Keterangan -->
+        <div class="field">
+            <label for="ket">Keterangan</label>
+            <textarea
+                rows="3"
+                cols="30"
+                pInputTextarea
+                [(ngModel)]="selectedMasterhapusdenda.ket"
+            ></textarea>
+        </div>
+
+        <!-- Status -->
+        <div class="field">
+            <label>Status</label>
+            <div class="flex gap-4">
+                <div class="flex items-center">
+                    <p-radioButton
+                        id="status1"
+                        name="status"
+                        value="1"
+                        [(ngModel)]="selectedMasterhapusdenda.status"
+                        inputId="statusAktif"
+                    ></p-radioButton>
+                    <label for="status1" class="leading-none ml-2">Aktif</label>
+                </div>
+                <div class="flex items-center">
+                    <p-radioButton
+                        id="status2"
+                        name="status"
+                        value="0"
+                        [(ngModel)]="selectedMasterhapusdenda.status"
+                        inputId="statusNonAktif"
+                    ></p-radioButton>
+                    <label for="status2" class="leading-none ml-2"
+                        >Tidak aktif</label
+                    >
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <ng-template pTemplate="footer">
+        <p-button
+            label="Batal"
+            icon="pi pi-times"
+            styleClass="p-button-text"
+            (click)="masterhapusdendaDialog = false"
+        ></p-button>
+        <p-button
+            label="Simpan"
+            icon="pi pi-check"
+            (click)="saveDaftar()"
+        ></p-button>
+    </ng-template>
+</p-dialog>
+
+<p-confirmDialog></p-confirmDialog>
+<p-toast></p-toast>

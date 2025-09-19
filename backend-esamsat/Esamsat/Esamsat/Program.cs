@@ -26,6 +26,11 @@ builder.Services.AddScoped<IJnsstrurekRepository, JnsstrurekRepository>();
 builder.Services.AddScoped<IMasterkabkotumRepository, MasterkabkotumRepository>();
 builder.Services.AddScoped<IMasterktpRepository, MasterktpRepository>();
 builder.Services.AddScoped<IJnspajakRepository, JnspajakRepository>();
+builder.Services.AddScoped<IMasterliburRepository, MasterliburRepository>();
+builder.Services.AddScoped<IMasterjabttdRepository, MasterjabttdRepository>();
+builder.Services.AddScoped<IJnsdokRepository, JnsdokRepository>();
+builder.Services.AddScoped<IMasterhapusdendumRepository, MasterhapusdendumRepository>();
+builder.Services.AddScoped<IMasterflowRepository, MasterflowRepository>();
 
 // Tambahkan session
 builder.Services.AddDistributedMemoryCache();

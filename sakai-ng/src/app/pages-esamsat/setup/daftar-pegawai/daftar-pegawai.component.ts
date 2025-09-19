@@ -86,7 +86,7 @@ export class DaftarPegawaiComponent implements OnInit {
       uid: '',
       telepon: '',
       createby: ''
-    } as Masterpegawai; // jangan set idrekd di sini!
+    } as Masterpegawai; // jangan set id (primary) di sini!
   }
 
   statusOptions = [

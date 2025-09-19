@@ -91,7 +91,7 @@ export class DaftarentitasComponent implements OnInit {
       bendahara: null,
       status: '',
       createby: ''
-    } as Masterupt; // jangan set idrekd di sini!
+    } as Masterupt; // jangan set id (primary) di sini!
   }
 
   parentOptions: { label: string; value: number | null }[] = [];

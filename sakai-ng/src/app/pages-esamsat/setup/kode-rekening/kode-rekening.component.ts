@@ -111,7 +111,7 @@ export class KoderekeningComponent implements OnInit {
       type: '',
       status: '',
       createby: ''
-    } as Masterrekd; // jangan set idrekd di sini!
+    } as Masterrekd; // jangan set id (primary) di sini!
   }
 
 

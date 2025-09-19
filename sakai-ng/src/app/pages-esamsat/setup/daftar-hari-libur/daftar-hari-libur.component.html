@@ -1,0 +1,206 @@
+<p-toolbar styleClass="mb-4">
+    <ng-template pTemplate="left">
+        <p-button
+            label="Tambah Data"
+            icon="pi pi-plus"
+            styleClass="p-button-sm mr-2"
+            (onClick)="openNewDaftar()"
+        ></p-button>
+        <p-button
+            label="Delete"
+            icon="pi pi-trash"
+            styleClass="p-button-sm mr-2 p-button-danger"
+            outlined
+            (onClick)="deleteSelectedDaftar()"
+            [disabled]="
+                !selectedMasterliburs || selectedMasterliburs.length === 0
+            "
+        ></p-button>
+    </ng-template>
+
+    <ng-template pTemplate="right">
+        <p-button
+            label="Export Excel"
+            icon="pi pi-file-excel"
+            styleClass="p-button-sm mr-2"
+            (onClick)="exportExcel()"
+        ></p-button>
+    </ng-template>
+</p-toolbar>
+
+<p-table
+    #dt
+    [value]="masterliburList"
+    [(selection)]="selectedMasterliburs"
+    [loading]="loadingDaftar"
+    [paginator]="true"
+    [rows]="10"
+    [rowsPerPageOptions]="[5, 10, 20]"
+    [globalFilterFields]="['namalibur']"
+    [sortField]="'namalibur'"
+    [sortOrder]="1"
+    selectionMode="multiple"
+    responsiveLayout="scroll"
+    class="p-datatable-gridlines p-datatable-sm"
+>
+    <!-- Search -->
+    <ng-template pTemplate="caption">
+        <div
+            class="flex flex-column md:flex-row md:justify-content-between md:align-items-center"
+        >
+            <h5 class="m-0">Daftar Hari Libur</h5>
+            <span class="block mt-2 md:mt-0 p-input-icon-left">
+                <i class="pi pi-search"></i>
+
+                <input
+                    #searchBox
+                    pInputText
+                    type="text"
+                    placeholder="Search..."
+                    (input)="onGlobalFilter(dt, $event)"
+                    class="w-full sm:w-auto"
+                />
+            </span>
+        </div>
+    </ng-template>
+    <!-- End Search -->
+
+    <ng-template pTemplate="header">
+        <tr>
+            <th style="width: 3rem">
+                <p-tableHeaderCheckbox></p-tableHeaderCheckbox>
+            </th>
+            <th pSortableColumn="idkabkota">
+                Wilayah<p-sortIcon field="idkabkota"></p-sortIcon>
+            </th>
+            <th pSortableColumn="tanggal">
+                Tanggal <p-sortIcon field="tanggal"></p-sortIcon>
+            </th>
+            <th pSortableColumn="namalibur">
+                Hari Libur<p-sortIcon field="namalibur"></p-sortIcon>
+            </th>
+            <th>Aksi</th>
+        </tr>
+    </ng-template>
+    <ng-template pTemplate="body" let-item>
+        <tr>
+            <td style="width: 3rem">
+                <p-tableCheckbox [value]="item"></p-tableCheckbox>
+            </td>
+            <td>{{ getKabKotumLabel(item.idkabkota) }}</td>
+            <td>{{ item.tanggal | date }}</td>
+            <td>{{ item.namalibur }}</td>
+            <td>
+                <p-button
+                    icon="pi pi-pencil"
+                    styleClass="p-button-text p-button-sm mr-2"
+                    (click)="editDaftar(item)"
+                ></p-button>
+                <p-button
+                    icon="pi pi-trash"
+                    styleClass="p-button-text p-button-sm p-button-danger"
+                    (click)="confirmDeleteDaftar(item)"
+                >
+                </p-button>
+            </td>
+        </tr>
+    </ng-template>
+</p-table>
+
+<!-- Dialog Pendapatan -->
+<p-dialog
+    [(visible)]="masterliburDialog"
+    [modal]="true"
+    [style]="{ width: '700px' }"
+    header="{{ masterliburEdit ? 'Edit' : 'Tambah' }} Daftar"
+>
+    <div class="card p-fluid">
+        <!-- ID LIBUR (Readonly saat edit) -->
+        <div class="field" *ngIf="masterliburEdit">
+            <label for="idlibur">ID Libur</label>
+            <input
+                id="idlibur"
+                type="text"
+                pInputText
+                [(ngModel)]="selectedMasterlibur.idlibur"
+                readonly
+            />
+        </div>
+
+        <!-- ID KABKOTA -->
+        <div class="field">
+            <label for="idabkota">Wilayah</label>
+            <p-dropdown
+                [options]="masterkabkotumOptions"
+                [(ngModel)]="selectedMasterlibur.idkabkota"
+                placeholder="Pilih Wilayah"
+                optionLabel="label"
+                optionValue="value"
+            >
+            </p-dropdown>
+        </div>
+
+        <!-- LEVEL -->
+        <div class="field">
+            <label for="level">Level</label>
+            <p-dropdown
+                [options]="levelOptions"
+                [(ngModel)]="selectedMasterlibur.level"
+                placeholder="Pilih Level"
+                optionLabel="label"
+                optionValue="value"
+            >
+            </p-dropdown>
+        </div>
+
+        <!-- Tanggal -->
+        <div class="field">
+            <label for="calendar">Tanggal</label>
+            <p-calendar
+                inputId="calendar"
+                [(ngModel)]="selectedMasterlibur.tanggal"
+                class="ng-invalid ng-dirty"
+                dateFormat="yy-mm-dd"
+            ></p-calendar>
+        </div>
+
+        <!-- Nama -->
+        <div class="field">
+            <label for="namalibur">Hari Libur</label>
+            <input
+                id="namalibur"
+                type="text"
+                pInputText
+                [(ngModel)]="selectedMasterlibur.namalibur"
+                required
+            />
+        </div>
+
+        <!-- Keterangan -->
+        <div class="field">
+            <label for="ket">Keterangan</label>
+            <textarea
+                rows="3"
+                cols="30"
+                pInputTextarea
+                [(ngModel)]="selectedMasterlibur.ket"
+            ></textarea>
+        </div>
+    </div>
+    <ng-template pTemplate="footer">
+        <p-button
+            label="Batal"
+            icon="pi pi-times"
+            styleClass="p-button-text"
+            (click)="masterliburDialog = false"
+        ></p-button>
+        <p-button
+            label="Simpan"
+            icon="pi pi-check"
+            (click)="saveDaftar()"
+        ></p-button>
+    </ng-template>
+</p-dialog>
+
+<p-confirmDialog></p-confirmDialog>
+<p-toast></p-toast>
